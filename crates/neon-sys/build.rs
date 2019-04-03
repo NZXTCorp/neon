@@ -228,6 +228,7 @@ mod build {
     }
 
     fn debug() -> bool {
+        if cfg!(windows) { return false }
         match env::var("DEBUG") {
             Ok(s) => s == "true",
             Err(_) => false
