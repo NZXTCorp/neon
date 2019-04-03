@@ -288,9 +288,6 @@ macro_rules! declare_types {
     { } => { };
 }
 
-#[cfg(all(windows, not(neon_profile = "release")))]
-compile_error!("Neon only builds with --release. For tests, try `cargo test --release`.");
-
 #[cfg(test)]
 mod tests {
     use std::path::{Path, PathBuf};
