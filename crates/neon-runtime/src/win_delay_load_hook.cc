@@ -33,7 +33,7 @@ static bool check_module_name() {
     return false;
   }
 
-  return _wcsicmp(ext, L"node") == 0;
+  return _wcsicmp(ext, L"node") != 0;
 }
 
 #pragma optimize("", off)
