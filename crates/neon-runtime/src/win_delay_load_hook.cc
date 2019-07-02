@@ -16,6 +16,7 @@
 static bool module_name_checked = false;
 static bool ignore_delay_load = false;
 
+#pragma optimize("", off)
 static bool check_module_name() {
   const DWORD len = 512;
   wchar_t module_name[len] = {0};
@@ -35,6 +36,7 @@ static bool check_module_name() {
   return _wcsicmp(ext, L"node") == 0;
 }
 
+#pragma optimize("", off)
 FARPROC WINAPI load_exe_hook(unsigned int event, DelayLoadInfo* info) {
   HMODULE m;
   if (event != dliNotePreLoadLibrary)
