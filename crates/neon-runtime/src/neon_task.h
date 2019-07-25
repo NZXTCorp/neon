@@ -25,7 +25,19 @@ public:
     callback_.Reset(isolate, callback);
     // Save the context (aka realm) to be used when invoking the callback.
     context_.Reset(isolate, isolate->GetCurrentContext());
+
+#if NODE_MODULE_VERSION >= NODE_9_0_MODULE_VERSION
+	// Set up an async context for running the callback
+	v8::Local<v8::Object> resource = v8::Object::New(isolate);
+	async_context_ = node::EmitAsyncInit(isolate, resource, "neon:Task");
+#endif
   }
+
+#if NODE_MODULE_VERSION >= NODE_9_0_MODULE_VERSION
+  ~Task() {
+	  node::EmitAsyncDestroy(isolate_, async_context_);
+  }
+#endif
 
   void execute() {
     result_ = perform_(rust_task_);
@@ -59,7 +71,11 @@ public:
     }
 
     v8::Local<v8::Function> callback = v8::Local<v8::Function>::New(isolate_, callback_);
-    node::MakeCallback(isolate_, context->Global(), callback, 2, argv);
+#if NODE_MODULE_VERSION >= NODE_9_0_MODULE_VERSION
+	node::MakeCallback(isolate_, context->Global(), callback, 2, argv, async_context_);
+#else
+	node::MakeCallback(isolate_, context->Global(), callback, 2, argv);
+#endif
     callback_.Reset();
     context_.Reset();
   }
@@ -78,6 +94,9 @@ private:
   void *result_;
   v8::Persistent<v8::Function> callback_;
   v8::Persistent<v8::Context> context_;
+#if NODE_MODULE_VERSION >= NODE_9_0_MODULE_VERSION
+  node::async_context async_context_;
+#endif
 };
 
 void execute_task(uv_work_t *request) {
