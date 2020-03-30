@@ -9,10 +9,6 @@ fn main() {
     // 1. Build the object file from source using node-gyp.
     build_object_file();
 
-    if cfg!(windows) {
-        build_delay_load_hook();
-    }
-
     // 2. Link the library from the object file using gcc.
     link_library();
 }
@@ -108,14 +104,6 @@ fn build_object_file() {
         .status()
         .ok()
         .expect("Failed to run \"node-gyp build\" for neon-runtime!");
-}
-
-fn build_delay_load_hook() {
-     cc::Build::new()
-        .cpp(true)
-        .static_crt(true)
-        .file("src/win_delay_load_hook.cc")
-        .compile("win_delay_load_hook");
 }
 
 // Link the built object file into a static library.
